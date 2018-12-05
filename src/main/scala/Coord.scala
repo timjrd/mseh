@@ -1,0 +1,4 @@
+
+class Coord(filename: String) {
+  /* ... */
+}

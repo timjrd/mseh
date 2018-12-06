@@ -1,3 +1,4 @@
+import scala.math._
 
 object Coord {
   def apply(file: String, zoom: Int): Coord = {
@@ -34,19 +35,22 @@ object Coord {
 case class Coord(
 
   // top-left origin
-  x: Int, // longitude
-  y: Int, // latitude
-  z: Int  // zoom
+  x: Int, // longitude (as expected by Leaflet)
+  y: Int, // latitude  (as expected by Leaflet)
+  z: Int  // zoom      (as expected by Leaflet)
 
 ) extends Ordered[Coord] {
 
   import Coord._
 
-  val size = 1 << z // 2^z
+  // val size = 1 << z // 2^z
 
   val morton = (Part1By1(y) << 1) + Part1By1(x)
 
-  def to(that: Coord) = (morton to that.morton).map(Coord(_,z))
+  def to(that: Coord) =
+    min(morton, that.morton)
+      .to(max(morton, that.morton))
+      .map(Coord(_,z))
 
   override def compare(that: Coord) = morton compare that.morton
 }

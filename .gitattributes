@@ -1,5 +1,2 @@
-leaflet/*    linguist-vendored
-leaflet/**/* linguist-vendored
-
-hbase/*      linguist-vendored
-hbase/**/*   linguist-vendored
+/static/leaflet/**/* linguist-vendored
+/hbase/**/*          linguist-vendored

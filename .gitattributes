@@ -1,2 +1,5 @@
+leaflet/*    linguist-vendored
 leaflet/**/* linguist-vendored
+
+hbase/*      linguist-vendored
 hbase/**/*   linguist-vendored

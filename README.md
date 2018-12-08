@@ -12,11 +12,21 @@ heightmap on a single machine for testing purposes.
 
 To run the heightmap precomputation:
 ```
-sbt "runMain Batch"
+sbt batch
 ```
 
 To launch the web server:
 ```
-sbt "runMain Server"
+sbt server
 ```
-and go to http://localhost:8080 .
+then go to http://localhost:8080 .
+
+`batch` and `server` should automatically start (and hopefully stop)
+HBase, but you can manage it manually with:
+```
+sbt startHBase
+```
+and
+```
+sbt stopHBase
+```

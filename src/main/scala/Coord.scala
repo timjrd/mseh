@@ -3,7 +3,8 @@ import scala.math._
 object Coord {
   def apply(file: String, zoom: Int): Coord = {
     // TODO: parse coordinates from filename
-
+    println(file)
+    val splited = file.split("N")
     val x = 0
     val y = 0
 

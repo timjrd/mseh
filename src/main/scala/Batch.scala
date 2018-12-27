@@ -1,11 +1,10 @@
 import org.apache.spark._
+import org.apache.spark.rdd._
+import org.apache.spark.mllib.rdd.RDDFunctions._
 
 object Batch extends App {
   val sc = new SparkContext( new SparkConf()
     .setAppName("mseh").setMaster("local[*]") )
-
-  // WE SHOULD USE org.apache.spark.mllib.rdd.RDDFunctions.sliding
-  // INSTEAD OF zipWithIndex/groupBy/...
 
   // Initial dataset.
   val init = sc
@@ -17,25 +16,20 @@ object Batch extends App {
     // Adding first and last blank tiles.
     // FIXME: make it work with TileRef.to
     .union(sc.parallelize(Seq(
-      TileRef.min, TileRef.max
+      TileRef.minusOne, TileRef.max
     )))
     // Morton order sort (quadtree layout, see Coord.scala).
     .sortBy(identity)
     // Filling holes with blank tiles.
-    .flatMap(x => Seq(x,x))
-    .zipWithIndex
-    .groupBy{case (_,i) => (i + 1) / 2}
-    .flatMap{
-      case (_, Seq((a,_),(b,_))) => (a to b).tail // FIXME (see TileRef.scala)
-      case (0, x)                => x.map(_._1)
-      case _                     => Seq()
-    }
+    .sliding(2)
+    .flatMap{ case Array(a,b) => (a to b).tail }
     // Loading tiles data from files.
     .map(Tile(_))
 
   // rdd.take(1).length == 1
-  // def scaleDown(base: RDD[Tile]) = base
-  //   .
+  def scaleDown(base: RDD[Tile]) = base
+    .sliding(4,4)
+    .map(Tile(_))
 
   sc.stop
 }

@@ -59,5 +59,7 @@ case class Coord(
       .to(max(morton, that.morton))
       .map(Coord(_,z))
 
+  def scaleDown = Coord(x/2, y/2, z-1)
+
   override def compare(that: Coord) = morton compare that.morton
 }

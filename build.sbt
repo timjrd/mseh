@@ -13,6 +13,7 @@ resolvers ++= Seq(
 libraryDependencies := Seq(
   // Spark
   "org.apache.spark"      %% "spark-core"          % "2.4.0",
+  "org.apache.spark"      %% "spark-mllib"         % "2.4.0",
 
   // HBase
   "org.apache.hadoop"     %  "hadoop-core"         % "0.20.2",

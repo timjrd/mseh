@@ -1,14 +1,26 @@
 import scala.collection.immutable._
 
 object Tile {
-  val size = 1200
+  val rawSize = 1201
+  val size    = rawSize - 1
+  val void    = Short.MinValue
 
-  def apply(ref: TileRef): Tile = {
+  def apply(ref: TileRef)(implicit fs: Fs): Tile = {
     ref match {
       case TileRef(None      , pos) => Tile(None, pos)
       case TileRef(Some(file), pos) =>
-        /* TODO: load data from file */
-        Tile(Some(Vector()), pos)
+        val data = fs
+          .file(file)
+          .sliding(2,2)
+          .zipWithIndex
+          .flatMap{ case (Vector(hi,lo), i) =>
+            if (i / rawSize == 0 || i % rawSize == 0)
+              None
+            else
+              Some(((hi << 8) + lo).toShort) }
+          .toVector
+
+        Tile(Some(data), pos)
     }
   }
 
@@ -19,6 +31,17 @@ object Tile {
 }
 
 case class Tile(
+
   data    : Option[Vector[Short]],
   position: Coord
-)
+
+) {
+
+  import Tile._
+
+  def apply(x: Int, y: Int) = data match {
+    case Some(dat) => dat(y*size + x)
+    case None      => void
+  }
+
+}

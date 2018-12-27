@@ -6,9 +6,11 @@ object Batch extends App {
   val sc = new SparkContext( new SparkConf()
     .setAppName("mseh").setMaster("local[*]") )
 
+  implicit val fs = new LocalFs
+
   // Initial dataset.
   val init = sc
-    .parallelize(Directory("data/dem3"))
+    .parallelize(fs.directory("data/dem3"))
     // DEBUG: print filenames
     .map{x => println(x) ; x}
     // Parsing coordinates from filenames.

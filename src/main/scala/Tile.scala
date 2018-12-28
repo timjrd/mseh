@@ -16,7 +16,7 @@ object Tile {
           if (i / rawSize == 0 || i % rawSize == 0)
             None
           else
-            Some((hi << 8 | lo).toShort)
+            Some((((hi & 0xFF) << 8) | (lo & 0xFF)).toShort)
         }
 
       Tile(Some(data.toVector), pos)

@@ -3,40 +3,54 @@ import scala.math._
 object ColorScale {
   // Challenger Deep: -11034m
   // Mount Everest  : +8848m
+  // Paris          : +78m
+  // Chamonix       : +995m
 
-  // Extracted from:
+  // Colors from:
+  // https://www.color-hex.com/color-palette/67502
+  val scholars = ColorScale(Seq(
+    -500  -> (43,89,90),
+    -1    -> (153,175,93),
+    -0    -> (98,161,169),
+    +1    -> (153,175,93),
+    +100  -> (230,183,64),
+    +1000 -> (200,61,50),
+    +8000 -> (255,255,255)
+  ))
+
+  // Colors from:
+  // https://www.color-hex.com/color-palette/70012
+  val technical = ColorScale(Seq(
+    -400  -> (17,36,77),
+    -50   -> (36,76,163),
+    -0    -> (86,141,216),
+    +1    -> (36,122,59),
+    +100  -> (229,111,30),
+    +1000 -> (210,38,38),
+    +8000 -> (255,255,255)
+  ))
+
+  // Colors from:
   // https://www.r-bloggers.com/gmt-standard-color-palettes
-  val relief = ColorScale(Vector(
-    -8000 -> (0,0,0),
-    -4000 -> (1,6,16),
-    -2000 -> (0,7,30),
-    -1000 -> (3,27,63),
-    -100  -> (9,74,121),
-    -60   -> (16,131,188),
-    -30   -> (59,176,173),
-    -20   -> (123,222,158),
-    -10   -> (176,250,171),
-    -5    -> (212,252,212),
-     5    -> (56,103,38),
-     10   -> (117,98,43),
-     20   -> (161,141,56),
-     30   -> (210,189,71),
-     60   -> (248,228,87),
-     100  -> (248,233,107),
-     1000 -> (251,235,129),
-     2000 -> (251,240,151),
-     4000 -> (251,245,180),
-     8000 -> (252,250,217)
+  val gmtRelief = ColorScale(Seq(
+    -400  -> (0,0,0),
+    -1    -> (150,150,150),
+    -0    -> (212,252,212),
+    +1    -> (56,103,38),
+    +100  -> (117,98,43),
+    +1000 -> (248,228,87),
+    +8000 -> (255,255,255)
   ))
 }
 
-case class ColorScale(palette: Vector[ Tuple2[Int, Tuple3[Int,Int,Int]] ]) {
+case class ColorScale(palette: Seq[ Tuple2[Int, Tuple3[Int,Int,Int]] ]) {
   import ColorScale._
 
+  private val pairs = palette.toArray.sliding(2).toArray
+
   def apply(x: Short) = {
-    val pairs = palette.sliding(2).toVector
-    val Vector(from,to) = pairs
-      .find{ case Vector(lo,hi) => x <= hi._1 }
+    val Array(from,to) = pairs
+      .find{ case Array(lo,hi) => x <= hi._1 }
       .getOrElse(pairs.last)
 
     val lo    = min(x, from._1)

@@ -8,7 +8,7 @@ object ImageTile {
     case Tile(None      , pos) => ImageTile(void, pos)
     case Tile(Some(data), pos) => {
       val pixels = data.map{ x =>
-        val c = ColorScale.relief(x)
+        val c = ColorScale.scholars(x)
         Pixel(c._1, c._2, c._3, 255)
       }
       val image = Image(Tile.size, Tile.size, pixels.toArray)

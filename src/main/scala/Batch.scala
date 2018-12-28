@@ -10,7 +10,7 @@ object Batch extends App {
 
   // Initial dataset.
   val init = sc
-    .parallelize(fs.directory("data/dem3"))
+    .parallelize(fs.readDirectory("data/dem3"))
     // DEBUG: print filenames
     .map{x => println(x) ; x}
     // Parsing coordinates from filenames.

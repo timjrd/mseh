@@ -5,23 +5,21 @@ object Tile {
   val size    = rawSize - 1
   val void    = Short.MinValue
 
-  def apply(ref: TileRef)(implicit fs: Fs): Tile = {
-    ref match {
-      case TileRef(None      , pos) => Tile(None, pos)
-      case TileRef(Some(file), pos) =>
-        val data = fs
-          .file(file)
-          .sliding(2,2)
-          .zipWithIndex
-          .flatMap{ case (Vector(hi,lo), i) =>
-            if (i / rawSize == 0 || i % rawSize == 0)
-              None
-            else
-              Some(((hi << 8) + lo).toShort) }
-          .toVector
+  def apply(ref: TileRef)(implicit fs: Fs): Tile = ref match {
+    case TileRef(None      , pos) => Tile(None, pos)
+    case TileRef(Some(file), pos) =>
+      val data = fs
+        .readFile(file)
+        .grouped(2)
+        .zipWithIndex
+        .flatMap{ case (Vector(hi,lo), i) =>
+          if (i / rawSize == 0 || i % rawSize == 0)
+            None
+          else
+            Some((hi << 8 | lo).toShort)
+        }
 
-        Tile(Some(data), pos)
-    }
+      Tile(Some(data.toVector), pos)
   }
 
   def apply(upscaled: Array[Tile]): Tile = {

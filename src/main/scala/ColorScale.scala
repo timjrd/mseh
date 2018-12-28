@@ -1,21 +1,23 @@
 import scala.math._
 
 object ColorScale {
-  // Challenger Deep: -11034m
+  // Challenger Deep: -11034m (no bathymetric data)
+  // Dead Sea shore : -433m  
+  // Paris          : +28m  - +131m
+  // Chamonix       : +995m - +4809m
   // Mount Everest  : +8848m
-  // Paris          : +78m
-  // Chamonix       : +995m
 
   // Colors from:
   // https://www.color-hex.com/color-palette/67502
   val scholars = ColorScale(Seq(
-    -500  -> (43,89,90),
-    -1    -> (153,175,93),
-    -0    -> (98,161,169),
-    +1    -> (153,175,93),
-    +100  -> (230,183,64),
-    +1000 -> (200,61,50),
-    +8000 -> (255,255,255)
+    -555  -> (43 , 89 , 90 ), // deep blue
+    -1    -> (153, 175, 93 ), // green (no bathymetric data)
+    -0    -> (98 , 161, 169), // blue
+    +1    -> (153, 175, 93 ), // green
+    +88   -> (230, 183, 64 ), // yellow
+    +1111 -> (200, 61 , 50 ), // red
+    +4444 -> (200, 200, 200), // grey
+    +7777 -> (255, 255, 255)  // white
   ))
 
   // Colors from:

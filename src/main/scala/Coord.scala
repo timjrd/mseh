@@ -15,7 +15,7 @@ object Coord {
     val splited = tmp_2.split("\\.")
     // We test if the coordonate are positive (i.e. if the tile is in the north or east)
     if (splited(0).contains("W") || splited(0).contains("w")) {
-      x_is_pos_deg = 180
+      x_is_pos_deg = 360
       x_is_pos = -1
     }
     if (splited(0).contains("S") || splited(0).contains("s")) {

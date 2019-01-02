@@ -4,6 +4,8 @@ object Coord {
   def apply(file: String, zoom: Int): Coord = {
     // file name example: /user/raw_data/dem3/N11W074.hgt
     // command to test:  Coord("/user/raw_data/dem3/N11W074.hgt", 1)
+    var x_is_pos_deg = 0
+    var y_is_pos_deg = 0
     var x_is_pos = 1
     var y_is_pos = 1
     var tmp_x = 0
@@ -13,9 +15,11 @@ object Coord {
     val splited = tmp_2.split("\\.")
     // We test if the coordonate are positive (i.e. if the tile is in the north or east)
     if (splited(0).contains("W") || splited(0).contains("w")) {
+      x_is_pos_deg = 180
       x_is_pos = -1
     }
     if (splited(0).contains("S") || splited(0).contains("s")) {
+      y_is_pos_deg = 180
       y_is_pos = -1
     }
     // To get the longitude coordonate
@@ -23,8 +27,8 @@ object Coord {
     // To get the latitude coordonate
     tmp_y = toInt(splited(0).substring(1,3))
 
-    val x = x_is_pos * tmp_x
-    val y = y_is_pos * tmp_y
+    val x = x_is_pos_deg + tmp_x * x_is_pos 
+    val y = y_is_pos_deg + tmp_y * y_is_pos
 
     Coord(x, y, zoom)
   }

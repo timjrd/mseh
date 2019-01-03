@@ -4,6 +4,9 @@ scalaVersion := "2.12.7"
 
 val http4sVersion = "0.18.21"
 
+javaOptions += "-Xmx4G"
+fork in run := true
+
 // HBase
 resolvers ++= Seq(
   "Apache HBase" at "https://repository.apache.org/content/repositories/releases",

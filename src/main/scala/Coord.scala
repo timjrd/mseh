@@ -1,4 +1,5 @@
 import scala.math._
+import Coord._
 
 object Coord {
   def apply(file: String, zoom: Int): Coord = {
@@ -66,16 +67,11 @@ object Coord {
 }
 
 case class Coord(
-
   // Top-left origin.
   x: Int, // longitude (as expected by Leaflet)
   y: Int, // latitude  (as expected by Leaflet)
   z: Int  // zoom      (as expected by Leaflet)
-
 ) extends Ordered[Coord] {
-
-  import Coord._
-
   // val size = 1 << z // 2^z
 
   // Morton code. This enables sorting a sequence of tiles (such as a

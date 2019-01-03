@@ -1,17 +1,15 @@
 import com.sksamuel.scrimage._
 import com.sksamuel.scrimage.nio._
+import ColorScale._
 
 object ImageTile {
-  val void = Image.filled(Tile.size, Tile.size, Color.Black)
+  val void = Image.filled(Tile.size, Tile.size, ColorScale.scholars(0))
 
   def apply(tile: Tile): ImageTile = tile match {
     case Tile(None      , pos) => ImageTile(void, pos)
     case Tile(Some(data), pos) => {
-      val pixels = data.map{ x =>
-        val c = ColorScale.scholars(x)
-        Pixel(c._1, c._2, c._3, 255)
-      }
-      val image = Image(Tile.size, Tile.size, pixels.toArray)
+      val pixels = data.map( ColorScale.scholars(_) : Pixel )
+      val image  = Image(Tile.size, Tile.size, pixels.toArray)
       ImageTile(image, pos)
     }
   }

@@ -1,6 +1,11 @@
 import scala.math._
+import com.sksamuel.scrimage._
+import ColorScale._
 
 object ColorScale {
+  implicit def toColor(x: Tuple3[Int,Int,Int]) = Color(x._1, x._2, x._3, 255)
+  implicit def toPixel(x: Tuple3[Int,Int,Int]) = Pixel(x._1, x._2, x._3, 255)
+
   // Challenger Deep: -11034m (no bathymetric data)
   // Dead Sea shore : -433m  
   // Paris          : +28m  - +131m
@@ -46,8 +51,6 @@ object ColorScale {
 }
 
 case class ColorScale(palette: Seq[ Tuple2[Int, Tuple3[Int,Int,Int]] ]) {
-  import ColorScale._
-
   private val pairs = palette.toArray.sliding(2).toArray
 
   def apply(x: Short) = {

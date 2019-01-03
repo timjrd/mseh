@@ -28,10 +28,17 @@ object Batch extends App {
     // Loading tiles data from files.
     .map(Tile(_))
 
-  // rdd.take(1).length == 1
   def scaleDown(base: RDD[Tile]) = base
     .sliding(4,4)
     .map(Tile(_))
+
+  def reduce(base: RDD[Tile], zoom: Int): Tile =
+    if (zoom == 0)
+      base.first
+    else
+      reduce(scaleDown(base), zoom - 1)
+
+  ImageTile(reduce(init, TileRef.zoom)).writePng("/tmp/world.png")
 
   sc.stop
 }

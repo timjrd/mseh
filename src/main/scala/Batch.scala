@@ -11,12 +11,9 @@ object Batch extends App {
   // Initial dataset.
   val init = sc
     .parallelize(fs.readDirectory("data/dem3"))
-    // DEBUG: print filenames
-    .map{x => println(x) ; x}
     // Parsing coordinates from filenames.
     .map(TileRef(_))
     // Adding first and last blank tiles.
-    // FIXME: make it work with TileRef.to
     .union(sc.parallelize(Seq(
       TileRef.minusOne, TileRef.max
     )))
@@ -33,12 +30,14 @@ object Batch extends App {
     .map(Tile(_))
 
   def reduce(base: RDD[Tile], zoom: Int): Tile =
-    if (zoom == 0)
-      base.first
+    if (zoom == 4)
+      base.filter(_.data != None).first
     else
       reduce(scaleDown(base), zoom - 1)
 
-  ImageTile(reduce(init, TileRef.zoom)).writePng("/tmp/world.png")
+  ImageTile(reduce(init, TileRef.zoom)).writePng("target/out.png")
+
+  //println("\n\nMORTON=" + init.zipWithIndex.filter(_._2==5000).first._1.position.morton)
 
   sc.stop
 }

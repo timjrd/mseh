@@ -5,42 +5,24 @@ object Coord {
   def apply(file: String, zoom: Int): Coord = {
     // file name example: /user/raw_data/dem3/N11W074.hgt
     // command to test:  Coord("/user/raw_data/dem3/N11W074.hgt", 1)
-    var x_is_pos_deg = 0
-    var y_is_pos_deg = 0
-    var x_is_pos = 1
-    var y_is_pos = 1
-    var tmp_x = 0
-    var tmp_y = 0
-    val tmp = file.split("/")
-    val tmp_2 = tmp(tmp.length-1)
-    val splited = tmp_2.split("\\.")
-    // We test if the coordonate are positive (i.e. if the tile is in the north or east)
-    if (splited(0).contains("W") || splited(0).contains("w")) {
-      x_is_pos_deg = 360
-      x_is_pos = -1
-    }
-    if (splited(0).contains("S") || splited(0).contains("s")) {
-      y_is_pos_deg = 180
-      y_is_pos = -1
-    }
-    // To get the longitude coordonate
-    tmp_x = toInt(splited(0).substring(4))
-    // To get the latitude coordonate
-    tmp_y = toInt(splited(0).substring(1,3))
 
-    val x = x_is_pos_deg + tmp_x * x_is_pos 
-    val y = y_is_pos_deg + tmp_y * y_is_pos
+    val tmp     = file.split("/")
+    val tmp_2   = tmp(tmp.length-1)
+    val splited = tmp_2.split("\\.")
+
+    // We test if the coordonate are positive (i.e. if the tile is in the north or east)
+    val x_is_pos = if (splited(0).contains("W") || splited(0).contains("w")) -1 else 1
+    val y_is_pos = if (splited(0).contains("N") || splited(0).contains("n")) -1 else 1
+
+    // To get the longitude coordonate
+    val tmp_x = splited(0).substring(4,7).toInt
+    // To get the latitude coordonate
+    val tmp_y = splited(0).substring(1,3).toInt
+
+    val x = 180 + tmp_x * x_is_pos 
+    val y = 90  + tmp_y * y_is_pos
 
     Coord(x, y, zoom)
-  }
-
-  // To allow to cast string to int w/o Exception
-  def toInt(s: String): Int = {
-    try {
-      s.toInt
-    } catch {
-      case e: Exception => 0
-    }
   }
 
   def apply(morton: Int, zoom: Int): Coord =
@@ -67,11 +49,14 @@ object Coord {
 }
 
 case class Coord(
+
   // Top-left origin.
   x: Int, // longitude (as expected by Leaflet)
   y: Int, // latitude  (as expected by Leaflet)
   z: Int  // zoom      (as expected by Leaflet)
+
 ) extends Ordered[Coord] {
+
   // val size = 1 << z // 2^z
 
   // Morton code. This enables sorting a sequence of tiles (such as a

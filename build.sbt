@@ -1,37 +1,27 @@
 import scala.sys.process._
 
-scalaVersion := "2.12.7"
-
-val http4sVersion = "0.18.21"
+scalaVersion := "2.10.7"
 
 javaOptions += "-Xmx4G"
 fork in run := true
 
-// HBase
-resolvers ++= Seq(
-  "Apache HBase" at "https://repository.apache.org/content/repositories/releases",
-  "Thrift"       at "https://people.apache.org/~rawson/repo/"
-)
-
 libraryDependencies := Seq(
   // Spark
-  "org.apache.spark"      %% "spark-core"          % "2.4.0",
-  "org.apache.spark"      %% "spark-mllib"         % "2.4.0",
+  "org.apache.spark"      %% "spark-core"          % "1.6.3",
+  "org.apache.spark"      %% "spark-mllib"         % "1.6.3",
 
   // HBase
-  "org.apache.hadoop"     %  "hadoop-core"         % "0.20.2",
-  "org.apache.hbase"      %  "hbase"               % "0.90.4",
+  "org.apache.hbase"      %  "hbase-common"        % "2.1.2",
+  "org.apache.hbase"      %  "hbase-client"        % "2.1.2",
+  "org.apache.hbase"      %  "hbase-spark"         % "2.0.0-alpha4",
 
   // Scrimage (PNG encoding)
-  "com.sksamuel.scrimage" %% "scrimage-core"       % "2.1.8",
+  "com.sksamuel.scrimage" %% "scrimage-core"       % "2.1.7",
 
   // http4s (web server)
-  "org.http4s"            %% "http4s-dsl"          % http4sVersion,
-  "org.http4s"            %% "http4s-blaze-server" % http4sVersion,
+  "org.http4s"            %% "http4s-dsl"          % "0.16.6a",
+  "org.http4s"            %% "http4s-blaze-server" % "0.16.6a",
 )
-
-// http4s
-scalacOptions ++= Seq("-Ypartial-unification")
 
 // Custom tasks
 val windows = System.getProperty("os.name").startsWith("Windows")

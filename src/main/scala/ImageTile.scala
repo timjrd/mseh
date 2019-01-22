@@ -3,8 +3,6 @@ import com.sksamuel.scrimage.nio._
 import ColorScale._
 
 object ImageTile {
-  // val void = Image.filled(Tile.size, Tile.size, ColorScale.scholars(0))
-
   def apply(tile: Tile): ImageTile = tile match {
     case Tile(None      , _   , pos) => ImageTile(None, pos)
     case Tile(Some(data), size, pos) => {
@@ -26,13 +24,11 @@ object ImageTile {
 }
 
 case class ImageTile(
-
   image   : Option[Image],
   position: Coord
-
 ) {
-
   def writePng(path: String)(implicit fs: Fs) =
-    fs.writeFile(path, image.get.bytes(PngWriter.MaxCompression).toVector)
+    fs.writeFile(path, pngBytes.get.toVector)
 
+  def pngBytes = image.map(x => x.bytes(PngWriter.MaxCompression))
 }

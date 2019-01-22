@@ -1,26 +1,29 @@
-import cats.effect._
 import org.http4s._
-import org.http4s.dsl.io._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import fs2._
+import org.http4s.dsl._
 import org.http4s.server.blaze._
+import org.http4s.util.ProcessApp
 
-object Server extends StreamApp[IO] {
+import scalaz.concurrent.Task
+import scalaz.stream.Process
 
-  def serveFile(path: String, request: Request[IO]) = 
-    StaticFile.fromString("static/" + path, Some(request)).getOrElseF(NotFound())
+object Main extends ProcessApp {
 
-  val static = HttpService[IO] {
+  def serveFile(path: String, request: Request) =
+    StaticFile.fromString("statc/" + path, Some(request))
+      .map(Task.now)
+      .getOrElse(NotFound())
+
+  val static = HttpService {
     case request @ GET -> Root => serveFile("index.html" , request)
     case request @ GET -> path => serveFile(path.toString, request)
   }
 
   /* ... */
 
-  override def stream(args: List[String], requestShutdown: IO[Unit]) =
-    BlazeBuilder[IO]
+  override def process(args: List[String]): Process[Task, Nothing] = {
+    BlazeBuilder
       .bindHttp(8080, "localhost")
       .mountService(static, "/")
       .serve
+  }
 }

@@ -1,4 +1,5 @@
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.nio.ByteBuffer
 
 import org.apache.spark._
@@ -15,7 +16,7 @@ object Batch extends App {
     .setAppName("mseh").setMaster("local[*]") )
 
   val hc = new HBaseContext(sc, HBaseConfiguration.create())
-  val prefix = "mseh_" + LocalDateTime.now;
+  val prefix = "mseh_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss"))
 
   implicit val fs = new LocalFs
 

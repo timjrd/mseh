@@ -3,14 +3,14 @@ import com.sksamuel.scrimage.nio._
 import ColorScale._
 
 object ImageTile {
-  val void = Image.filled(Tile.size, Tile.size, ColorScale.scholars(0))
+  // val void = Image.filled(Tile.size, Tile.size, ColorScale.scholars(0))
 
   def apply(tile: Tile): ImageTile = tile match {
-    case Tile(None      , pos) => ImageTile(void, pos)
-    case Tile(Some(data), pos) => {
+    case Tile(None      , _   , pos) => ImageTile(None, pos)
+    case Tile(Some(data), size, pos) => {
       val pixels = data.map( ColorScale.scholars(_) : Pixel )
-      val image  = Image(Tile.size, Tile.size, pixels.toArray)
-      ImageTile(image, pos)
+      val image  = Image(size, size, pixels.toArray)
+      ImageTile(Some(image), pos)
     }
   }
 
@@ -27,12 +27,12 @@ object ImageTile {
 
 case class ImageTile(
 
-  image   : Image,
+  image   : Option[Image],
   position: Coord
 
 ) {
 
   def writePng(path: String)(implicit fs: Fs) =
-    fs.writeFile(path, image.bytes(PngWriter.MaxCompression).toVector)
+    fs.writeFile(path, image.get.bytes(PngWriter.MaxCompression).toVector)
 
 }

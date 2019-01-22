@@ -14,9 +14,9 @@ object Coord {
     val x_is_pos = if (splited(0).contains("W") || splited(0).contains("w")) -1 else 1
     val y_is_pos = if (splited(0).contains("N") || splited(0).contains("n")) -1 else 1
 
-    // To get the longitude coordonate
+    // To get the longitude coordinate
     val tmp_x = splited(0).substring(4,7).toInt
-    // To get the latitude coordonate
+    // To get the latitude coordinate
     val tmp_y = splited(0).substring(1,3).toInt
 
     val x = 180 + tmp_x * x_is_pos 
@@ -26,7 +26,7 @@ object Coord {
   }
 
   def apply(morton: Int, zoom: Int): Coord =
-    Coord( Compact1By1(morton >> 0), Compact1By1(morton >> 1), zoom)
+    Coord(Compact1By1(morton >> 0), Compact1By1(morton >> 1), zoom)
 
   // Stolen from
   // https://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes .
@@ -72,6 +72,13 @@ case class Coord(
       .map(Coord(_,z))
 
   def scaleDown = Coord(x/2, y/2, z-1)
+
+  def scaleUp = (
+    Coord(x*2    , y*2    , z+1),
+    Coord(x*2 + 1, y*2    , z+1),
+    Coord(x*2    , y*2 + 1, z+1),
+    Coord(x*2 + 1, y*2 + 1, z+1)
+  )
 
   override def compare(that: Coord) = morton compare that.morton
 }

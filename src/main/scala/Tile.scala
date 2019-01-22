@@ -3,10 +3,9 @@ import Tile._
 
 object Tile {
   val rawSize = 1201
-  val size    = rawSize - 1
 
   def apply(ref: TileRef)(implicit fs: Fs): Tile = ref match {
-    case TileRef(None      , pos) => Tile(None, pos)
+    case TileRef(None      , pos) => Tile(None, rawSize-1, pos)
     case TileRef(Some(file), pos) =>
       val data = fs
         .readFile(file)
@@ -19,12 +18,16 @@ object Tile {
             Some(( ((hi & 0xFF) << 8) | (lo & 0xFF) ).toShort)
         }
 
-      Tile(Some(data.toVector), pos)
+      Tile(Some(data.toVector), rawSize-1, pos)
   }
 
   def apply(upscaled: Array[Tile]): Tile = {
+    val size = upscaled.head.size
+    val pos  = upscaled.head.position.scaleDown
+
     if (upscaled.forall(_.data == None))
-      Tile(None, upscaled.head.position.scaleDown)
+      Tile(None, size, pos)
+
     else {
       def at(x2: Int, y2: Int) = {
         val x0 = x2 / size
@@ -33,7 +36,7 @@ object Tile {
         val x1 = x2 - (size*x0)
         val y1 = y2 - (size*y0)
 
-        upscaled(y0*2 + x0)(x1, y1).toInt
+        upscaled(y0*2 + x0)(x1, y1)
       }
       val data = Vector.tabulate(size*size){ i =>
         val x2_0 = (i % size) * 2
@@ -47,19 +50,37 @@ object Tile {
         val c = at(x2_1, y2_0)
         val d = at(x2_1, y2_1)
 
-        ((a + b + c + d) / 4).toShort
+        ((a._1 + b._1 + c._1 + d._1) / (a._2 + b._2 + c._2 + d._2)).toShort
       }
-      Tile(Some(data), upscaled.head.position.scaleDown)
+      Tile(Some(data), size, pos)
     }
   }
 }
 
 case class Tile(
   data    : Option[Vector[Short]],
+  size    : Int,
   position: Coord
 ) {
   def apply(x: Int, y: Int) = data match {
-    case Some(dat) => dat(y*size + x)
-    case None      => 0
+    case Some(dat) => dat(y*size + x) match {
+      case Short.MinValue => (0,0)
+      case v => (v.toInt,1)
+    }
+    case None => (0,0)
   }
+
+  def split = Seq(
+    Tile(slice(0     , 0     , size/2, size/2), size/2, position.scaleUp._1),
+    Tile(slice(size/2, 0     , size/2, size/2), size/2, position.scaleUp._2),
+    Tile(slice(0     , size/2, size/2, size/2), size/2, position.scaleUp._3),
+    Tile(slice(size/2, size/2, size/2, size/2), size/2, position.scaleUp._4)
+  )
+
+  private def slice(x: Int, y: Int, w: Int, h: Int) = data.map(dat =>
+    Vector.tabulate(w*h){ i =>
+      val x_ = x + i % w
+      val y_ = y + i / w
+      dat(y_ * size + x_)
+    })
 }

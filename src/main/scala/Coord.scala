@@ -6,18 +6,17 @@ object Coord {
     // file name example: /user/raw_data/dem3/N11W074.hgt
     // command to test:  Coord("/user/raw_data/dem3/N11W074.hgt", 1)
 
-    val tmp     = file.split("/")
-    val tmp_2   = tmp(tmp.length-1)
-    val splited = tmp_2.split("\\.")
+    val tmp     = file.replace('\\', '/').split("/")
+    val splited   = tmp(tmp.length-1).split("\\.")(0)
 
     // We test if the coordonate are positive (i.e. if the tile is in the north or east)
-    val x_is_pos = if (splited(0).contains("W") || splited(0).contains("w")) -1 else 1
-    val y_is_pos = if (splited(0).contains("N") || splited(0).contains("n")) -1 else 1
+    val x_is_pos = if (splited.contains("W") || splited.contains("w")) -1 else 1
+    val y_is_pos = if (splited.contains("N") || splited.contains("n")) -1 else 1
 
     // To get the longitude coordinate
-    val tmp_x = splited(0).substring(4,7).toInt
+    val tmp_x = splited.substring(4,7).toInt
     // To get the latitude coordinate
-    val tmp_y = splited(0).substring(1,3).toInt
+    val tmp_y = splited.substring(1,3).toInt
 
     val x = 180 + tmp_x * x_is_pos 
     val y = 90  + tmp_y * y_is_pos

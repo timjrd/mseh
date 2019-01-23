@@ -50,7 +50,13 @@ object Tile {
         val c = at(x2_1, y2_0)
         val d = at(x2_1, y2_1)
 
-        ((a._1 + b._1 + c._1 + d._1) / (a._2 + b._2 + c._2 + d._2)).toShort
+        val num = a._1 + b._1 + c._1 + d._1
+        val den = a._2 + b._2 + c._2 + d._2
+
+        if (den == 0)
+          Short.MinValue
+        else
+          (num/den).toShort
       }
       Tile(Some(data), size, pos)
     }
@@ -67,7 +73,7 @@ case class Tile(
       case Short.MinValue => (0,0)
       case v => (v.toInt,1)
     }
-    case None => (0,0)
+    case None => (0,1)
   }
 
   def split = Seq(

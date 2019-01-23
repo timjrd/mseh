@@ -6,16 +6,17 @@ import org.apache.spark._
 import org.apache.spark.rdd._
 import org.apache.spark.mllib.rdd.RDDFunctions._
 
-import org.apache.hadoop.hbase.TableName
-import org.apache.hadoop.hbase.HBaseConfiguration
+import org.apache.hadoop.hbase._
+import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.spark.HBaseContext
-import org.apache.hadoop.hbase.client.Put
 
 object Batch extends App {
   val sc = new SparkContext( new SparkConf()
     .setAppName("mseh").setMaster("local[*]") )
 
-  val hc = new HBaseContext(sc, HBaseConfiguration.create())
+  val hcfg   = HBaseConfiguration.create()
+  val hadm   = ConnectionFactory.createConnection(hcfg).getAdmin()
+  val hc     = new HBaseContext(sc, hcfg)
   val prefix = "mseh_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss"))
 
   implicit val fs = new LocalFs
@@ -45,19 +46,28 @@ object Batch extends App {
         .map(ImageTile(_))
         .filter(_.image != None)
 
-      hc.bulkPut(images,
-        TableName.valueOf(prefix + "_" + String.format("%02d", new Integer(zoom))),
+      val tableName = TableName.valueOf(
+        prefix + String.format("_%02d", new Integer(zoom+2)) )
+
+      val family    = Array[Byte]('0')
+      val qualifier = Array[Byte]('0')
+
+      val table = new HTableDescriptor(tableName)
+      table.addFamily(new HColumnDescriptor(family))
+
+      hadm.createTable(table)
+
+      hc.bulkPut(images, tableName,
         { tile: ImageTile =>
           val i = ByteBuffer.allocate(Integer.BYTES * 2)
           i.putInt(tile.position.x)
           i.putInt(tile.position.y)
-          new Put(i).addColumn(Array(), Array(), tile.pngBytes.get)
+          new Put(i.array()).addColumn(family, qualifier, tile.pngBytes.get)
         })
 
       reduce(base.sliding(4,4).map(Tile(_)), zoom-1)
     }
 
   reduce(init, TileRef.zoom)
-  sc.stop
   println("\nOUTPUT WRITTEN INTO TABLES " + prefix + "_*\n")
 }

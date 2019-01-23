@@ -1,2 +1,3 @@
 target
 hbase/logs
+hbase/conf/hbase-site.xml

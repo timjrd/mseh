@@ -21,4 +21,8 @@
  */
 -->
 <configuration>
+  <property>
+    <name>hbase.rootdir</name>
+    <value>/home/timjrd/HBASE</value>
+  </property>
 </configuration>

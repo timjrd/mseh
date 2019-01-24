@@ -23,6 +23,6 @@
 <configuration>
   <property>
     <name>hbase.rootdir</name>
-    <value>/home/timjrd/HBASE</value>
+    <value>/net/cremi/jefseutin/espaces/travail/tmp</value>
   </property>
 </configuration>

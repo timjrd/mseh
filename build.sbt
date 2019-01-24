@@ -43,4 +43,4 @@ lazy val batch = taskKey[Unit]("run tiles precomputation")
 batch := runClass("Batch").dependsOn(startHBase).andFinally(stopHBase_).value
 
 lazy val server = taskKey[Unit]("run web server")
-server := runClass("Server").dependsOn(startHBase).andFinally(stopHBase_).value
+server := runClass("Main").dependsOn(startHBase).andFinally(stopHBase_).value

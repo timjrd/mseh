@@ -2,20 +2,32 @@ import org.http4s._
 import org.http4s.dsl._
 import org.http4s.server.blaze._
 import org.http4s.util.ProcessApp
+import java.nio.ByteBuffer
 
 import scalaz.concurrent.Task
 import scalaz.stream.Process
+import java.io.File
 
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.spark._
-import org.apache.hadoop.hbase.spark.HBaseContext
-import org.apache.hadoop.hbase.{TableName, HBaseConfiguration}
-import org.apache.hadoop.hbase.client.Scan
+import org.apache.hadoop.hbase.{CellUtil, HBaseConfiguration, TableName}
+import org.apache.hadoop.hbase.client._
+import org.apache.hadoop.conf.Configuration
 
 object Main extends ProcessApp {
 
+  def printRow(result : Result) = {
+      val cells = result.rawCells();
+      print( Bytes.toString(result.getRow) + " : " )
+      for(cell <- cells){
+        val col_name = Bytes.toString(CellUtil.cloneQualifier(cell))
+        val col_value = Bytes.toString(CellUtil.cloneValue(cell))
+        print("(%s,%s) ".format(col_name, col_value))
+      }
+      println()
+  }
+
   def serveFile(path: String, request: Request) =
-    StaticFile.fromString("statc/" + path, Some(request))
+    StaticFile.fromString("static/" + path, Some(request))
       .map(Task.now)
       .getOrElse(NotFound())
 
@@ -27,25 +39,28 @@ object Main extends ProcessApp {
     case request @ GET -> path => {
       val values = path.toString.split('/')
       if(values.length == 4){
-        val zoom = values(1)
-        val x = values(2)
-        val y = values(3)
+        val zoom = values(1).toInt
+        val x = values(2).toInt
+        val y = values(3).toInt
 
-        val sc = new SparkContext( new SparkConf().setAppName("mseh").setMaster("local[*]"))
-        println("youpi")
-
-        val hbaseContext = new HBaseContext(sc, HBaseConfiguration.create())
-        var scan = new Scan()
-        scan.setCaching(100)
-
-        var getRdd = hbaseContext.hbaseRDD(TableName.valueOf("mseh_2019.01.23.16.11.11_09"), scan)
-
-        //getRdd.foreach(v => println("salutations"))
-        getRdd.foreach(v => println(Bytes.toString(v._1.get())))
+        val conf : Configuration = HBaseConfiguration.create()
+        val connection = ConnectionFactory.createConnection(conf)
 
 
+        val prefix = "mseh_2019.01.24.15.09.25"
+        val tableName = TableName.valueOf(prefix + String.format("_%02d", new Integer(zoom)))
+        println(tableName)
+        val table = connection.getTable(tableName)
 
-        ///faire ici la requete vers hbase
+
+        val i = ByteBuffer.allocate(Integer.BYTES * 2)
+        i.putInt(x)
+        i.putInt(y)
+        
+        var get = new Get(i.array())
+        var result = table.get(get)
+        printRow(result)
+
       }
       serveFile(path.toString, request)
     }

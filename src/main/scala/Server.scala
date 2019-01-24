@@ -64,8 +64,8 @@ object Main extends ProcessApp {
         
         Ok(result.value(), Headers(Header("Content-Type", "image/png")))
       } else
-        BadRequest().withBody("Path must be domain://zoom/x_position/y_position")
-
+        //BadRequest().withBody("Path must be domain://zoom/x_position/y_position")
+        serveFile(path.toString(), request)
     }
   }
 

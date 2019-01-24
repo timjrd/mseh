@@ -2,6 +2,7 @@ import org.http4s._
 import org.http4s.dsl._
 import org.http4s.server.blaze._
 import org.http4s.util.ProcessApp
+import org.http4s.headers._
 import java.nio.ByteBuffer
 
 import scalaz.concurrent.Task
@@ -60,9 +61,11 @@ object Main extends ProcessApp {
         var get = new Get(i.array())
         var result = table.get(get)
         printRow(result)
+        
+        Ok(result.value(), Headers(Header("Content-Type", "image/png")))
+      } else
+        BadRequest().withBody("Path must be domain://zoom/x_position/y_position")
 
-      }
-      serveFile(path.toString, request)
     }
   }
 

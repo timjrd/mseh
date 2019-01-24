@@ -16,17 +16,6 @@ import org.apache.hadoop.conf.Configuration
 
 object Main extends ProcessApp {
 
-  def printRow(result : Result) = {
-      val cells = result.rawCells();
-      print( Bytes.toString(result.getRow) + " : " )
-      for(cell <- cells){
-        val col_name = Bytes.toString(CellUtil.cloneQualifier(cell))
-        val col_value = Bytes.toString(CellUtil.cloneValue(cell))
-        print("(%s,%s) ".format(col_name, col_value))
-      }
-      println()
-  }
-
   def serveFile(path: String, request: Request) =
     StaticFile.fromString("static/" + path, Some(request))
       .map(Task.now)
@@ -34,7 +23,6 @@ object Main extends ProcessApp {
 
   val static = HttpService {
     case request @ GET -> Root => {
-      println("bonjour")
       serveFile("index.html" , request)
     }
     case request @ GET -> path => {
@@ -47,12 +35,9 @@ object Main extends ProcessApp {
         val conf : Configuration = HBaseConfiguration.create()
         val connection = ConnectionFactory.createConnection(conf)
 
-
         val prefix = "mseh_2019.01.24.15.09.25"
         val tableName = TableName.valueOf(prefix + String.format("_%02d", new Integer(zoom)))
-        println(tableName)
         val table = connection.getTable(tableName)
-
 
         val i = ByteBuffer.allocate(Integer.BYTES * 2)
         i.putInt(x)
@@ -60,16 +45,13 @@ object Main extends ProcessApp {
         
         var get = new Get(i.array())
         var result = table.get(get)
-        printRow(result)
-        
         Ok(result.value(), Headers(Header("Content-Type", "image/png")))
+
       } else
         //BadRequest().withBody("Path must be domain://zoom/x_position/y_position")
         serveFile(path.toString(), request)
     }
   }
-
-  /* ... */
 
   override def process(args: List[String]): Process[Task, Nothing] = {
     BlazeBuilder

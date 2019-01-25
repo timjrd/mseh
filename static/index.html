@@ -14,11 +14,20 @@
   
   <div id="mapid"></div>
   <script defer>
+  function UrlExists(url)
+  {
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status!=404;
+  }
+  
   var mymap = L.map('mapid').setView([0, 0], 2);
   L.tileLayer('http://localhost:8080/{z}/{x}/{y}', {
-    maxZoom: 11,
+    maxZoom: 11, minZoom: 2, errorTileUrl: 'http://localhost:8080/img/not_found.png',
     }).addTo(mymap);
   </script>
+  
   
 </body>
 </html>

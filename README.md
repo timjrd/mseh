@@ -6,18 +6,18 @@
 ## Local setup
 Install the [SBT](https://www.scala-sbt.org/download.html) build tool.
 
-`data/dem3` contains 64 random tiles (185Mo) taken from the complete
+`data/dem3` contains 100 tiles covering the whole France (345Mo), taken from the complete
 dataset. This partial dataset will be used to generate an incomplete
 heightmap on a single machine for testing purposes.
 
 To run the heightmap precomputation:
 ```
-sbt batch
+sbt "runMain Batch"
 ```
 
 To launch the web server:
 ```
-sbt server
+sbt "runMain Server <table_prefix_without_zoom>"
 ```
 then go to http://localhost:8080 .
 

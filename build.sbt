@@ -25,22 +25,3 @@ libraryDependencies := Seq(
   "org.http4s"            %% "http4s-dsl"          % "0.16.6a",
   "org.http4s"            %% "http4s-blaze-server" % "0.16.6a",
 )
-
-// Custom tasks
-val windows = System.getProperty("os.name").startsWith("Windows")
-val ext = if (windows) "cmd" else "sh"
-
-def runClass(cmd: String) = (runMain in Compile).toTask(" " + cmd)
-
-lazy val startHBase = taskKey[Unit]("start HBase")
-startHBase := Process("hbase/bin/start-hbase." + ext).!
-
-lazy val stopHBase_ = Process("hbase/bin/stop-hbase." + ext).!
-lazy val stopHBase  = taskKey[Unit]("stop HBase")
-stopHBase := stopHBase_
-
-lazy val batch = taskKey[Unit]("run tiles precomputation")
-batch := runClass("Batch").dependsOn(startHBase).andFinally(stopHBase_).value
-
-lazy val server = taskKey[Unit]("run web server")
-server := runClass("Server").dependsOn(startHBase).andFinally(stopHBase_).value

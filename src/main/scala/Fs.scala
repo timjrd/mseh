@@ -26,11 +26,12 @@ class LocalFs extends Fs {
 class HadoopFs extends Fs {
   private val fs = FileSystem.get(new Configuration)
 
-  private def toList(it: RemoteIterator[LocatedFileStatus]): List[String] =
-    if (it.hasNext)
-      it.next.getPath.toString :: toList(it)
-    else
-      List()
+  private def toList(it: RemoteIterator[LocatedFileStatus]): List[String] = {
+    var res = List[String]()
+    while (it.hasNext)
+      res = it.next.getPath.toString :: res
+    res
+  }
 
   override def readDirectory(path: String) =
     toList( fs.listFiles(new Path(path), false) )

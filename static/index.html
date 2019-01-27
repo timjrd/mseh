@@ -1,33 +1,32 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Multi-scale earth heightmap</title>
+  <head>
+    <meta charset="utf-8">
+    <title>Multi-scale earth heightmap</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="leaflet/leaflet.css" />
-  <script src="leaflet/leaflet.js"></script>
-  
-</head>
-<body>
-  <h1>Hello World!</h1>
-  
-  <div id="mapid"></div>
-  <script defer>
-  function UrlExists(url)
-  {
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status!=404;
-  }
-  
-  var mymap = L.map('mapid').setView([0, 0], 2);
-  L.tileLayer('http://localhost:8080/{z}/{x}/{y}', {
-    maxZoom: 11, minZoom: 2, errorTileUrl: 'http://localhost:8080/img/not_found.png',
-    }).addTo(mymap);
-  </script>
-  
-  
-</body>
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
+
+    <style>
+      html, body, #map {
+	  width : 100%;
+	  height: 100%;
+	  margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    
+    <script defer>
+      const map = L.map('map').setView([0, 0], 2);
+      L.tileLayer('/tiles/{z}/{x}/{y}', {
+	  maxZoom: 11,
+	  minZoom: 2,
+	  tileSize: 300,
+	  errorTileUrl: '/img/not_found.png'
+      }).addTo(map);
+    </script>
+  </body>
 </html>

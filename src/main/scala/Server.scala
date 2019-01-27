@@ -21,44 +21,40 @@ object Server extends ProcessApp {
       .map(Task.now)
       .getOrElse(NotFound())
 
-  def run(prefix: String) =
+  val static = HttpService {
+    case request @ GET -> Root =>
+      serveFile("index.html", request)
+    case request @ GET -> path =>
+      serveFile(path.toString(), request)
+  }
+
+  def tiles(prefix: String) =
     HttpService {
-      case request @ GET -> Root => {
-        serveFile("index.html" , request)
-      }
-      case request @ GET -> path => {
-        val values = path.toString.split('/')
-        if(values.length == 4){
-          val zoom = values(1).toInt
-          val x = values(2).toInt
-          val y = values(3).toInt
+      case GET -> Root / z_ / x_ / y_ => {
+        val z = Integer.parseInt(z_)
+        val x = Integer.parseInt(x_)
+        val y = Integer.parseInt(y_)
 
-          val conf : Configuration = HBaseConfiguration.create()
-          val connection = ConnectionFactory.createConnection(conf)
+        val conf : Configuration = HBaseConfiguration.create()
+        val connection = ConnectionFactory.createConnection(conf)
 
-          //val prefix = "mseh_2019.01.24.15.09.25"
-          val tableName = TableName.valueOf(prefix + String.format("_%02d", new Integer(zoom)))
-          val table = connection.getTable(tableName)
+        val tableName = TableName.valueOf(prefix + String.format("_%02d", new Integer(z)))
+        val table = connection.getTable(tableName)
 
-          val i = ByteBuffer.allocate(Integer.BYTES * 2)
-          i.putInt(x)
-          i.putInt(y)
-          
-          var get = new Get(i.array())
-          var result = table.get(get)
-          Ok(result.value(), Headers(Header("Content-Type", "image/png")))
-
-        } else
-          //BadRequest().withBody("Path must be domain://zoom/x_position/y_position")
-          serveFile(path.toString(), request)
+        val i = ByteBuffer.allocate(Integer.BYTES * 2)
+        i.putInt(x)
+        i.putInt(y)
+        
+        val result = table.get(new Get(i.array))
+        Ok(result.value, Headers(Header("Content-Type", "image/png")))
       }
     }
 
   override def process(args: List[String]): Process[Task, Nothing] = {    
     BlazeBuilder
       .bindHttp(8080, "localhost")
-      .mountService(run(args(0)), "/")
-      .serve   
-    
+      .mountService(static, "/")
+      .mountService(tiles(args(0)), "/tiles")
+      .serve
   }
 }

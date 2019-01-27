@@ -3,23 +3,18 @@ import Coord._
 
 object Coord {
   def apply(file: String, zoom: Int): Coord = {
-    // file name example: /user/raw_data/dem3/N11W074.hgt
-    // command to test:  Coord("/user/raw_data/dem3/N11W074.hgt", 1)
+    // file name example: "/user/raw_data/dem3/N11W074.hgt"
 
-    val tmp     = file.replace('\\', '/').split("/")
-    val splited   = tmp(tmp.length-1).split("\\.")(0)
+    val str = file.substring(file.length - 11, file.length - 4)
 
-    // We test if the coordonate are positive (i.e. if the tile is in the north or east)
-    val x_is_pos = if (splited.contains("W") || splited.contains("w")) -1 else 1
-    val y_is_pos = if (splited.contains("N") || splited.contains("n")) -1 else 1
+    val xSig = if (str.contains("W") || str.contains("w")) -1 else 1
+    val ySig = if (str.contains("N") || str.contains("n")) -1 else 1
 
-    // To get the longitude coordinate
-    val tmp_x = splited.substring(4,7).toInt
-    // To get the latitude coordinate
-    val tmp_y = splited.substring(1,3).toInt
+    val x_ = str.substring(4,7).toInt
+    val y_ = str.substring(1,3).toInt
 
-    val x = 180 + tmp_x * x_is_pos 
-    val y = 90  + tmp_y * y_is_pos
+    val x = 180 + x_ * xSig
+    val y = 90  + y_ * ySig
 
     Coord(x, y, zoom)
   }

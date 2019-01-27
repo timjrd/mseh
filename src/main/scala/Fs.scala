@@ -24,7 +24,7 @@ class LocalFs extends Fs {
 }
 
 class HadoopFs extends Fs {
-  private val fs = FileSystem.get(new Configuration)
+  private def fs = FileSystem.get(new Configuration)
 
   private def toList(it: RemoteIterator[LocatedFileStatus]): List[String] = {
     var res = List[String]()

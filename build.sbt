@@ -7,8 +7,8 @@ fork in run := true
 
 libraryDependencies := Seq(
   // Spark
-  "org.apache.spark"      %% "spark-core"          % "1.6.3" % "provided",
-  "org.apache.spark"      %% "spark-mllib"         % "1.6.3" % "provided",
+  "org.apache.spark"      %% "spark-core"          % "1.6.3",
+  "org.apache.spark"      %% "spark-mllib"         % "1.6.3",
 
   // HBase
   "org.apache.hbase"      %  "hbase"               % "2.1.2",

@@ -11,7 +11,7 @@ import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.spark.HBaseContext
 
 object Batch {
-  def batch(local: Boolean) {
+  def batch(local: Boolean, dir: String) {
     val c   = new SparkConf().setAppName("mseh")
     val cfg = if (local) c.setMaster("local[*]") else c
     val sc  = new SparkContext(cfg)
@@ -25,7 +25,7 @@ object Batch {
 
     // Initial dataset.
     val init = sc
-      .parallelize(fs.readDirectory("data/dem3"))
+      .parallelize(fs.readDirectory(dir))
       // Parsing coordinates from filenames.
       .map(TileRef(_))
       // Adding first and last blank tiles.

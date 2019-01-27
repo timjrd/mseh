@@ -9,7 +9,6 @@ import org.apache.hadoop.fs._
 trait Fs {
   def readDirectory(path: String): Seq[String]
   def readFile     (path: String): Vector[Byte]
-  def writeFile    (path: String, data: Vector[Byte]): Unit
 }
 
 class LocalFs extends Fs {
@@ -22,13 +21,10 @@ class LocalFs extends Fs {
 
   override def readFile(path: String) =
     Files.readAllBytes(Paths.get(path)).toVector
-
-  override def writeFile(path: String, data: Vector[Byte]) =
-    Files.write(Paths.get(path), data.toArray)
 }
 
-class HadoopFs(cfg: Configuration) extends Fs {
-  private val fs = FileSystem.get(cfg)
+class HadoopFs extends Fs {
+  private val fs = FileSystem.get(new Configuration)
 
   private def toList(it: RemoteIterator[LocatedFileStatus]): List[String] =
     if (it.hasNext)
@@ -45,6 +41,4 @@ class HadoopFs(cfg: Configuration) extends Fs {
     stream.close
     res
   }
-
-  override def writeFile(path: String, data: Vector[Byte]) = ???
 }

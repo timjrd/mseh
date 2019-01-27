@@ -11,24 +11,11 @@ object ImageTile {
       ImageTile(Some(image), pos)
     }
   }
-
-  // debug/test
-  def main(args: Array[String]): Unit = {
-    implicit val fs = new LocalFs
-    fs.readDirectory("data/dem3")
-      .zipWithIndex
-      .foreach{ case (path,i) =>
-        ImageTile(Tile(TileRef(path))).writePng("target/" + i + ".png")
-      }
-  }
 }
 
 case class ImageTile(
   image   : Option[Image],
   position: Coord
 ) {
-  def writePng(path: String)(implicit fs: Fs) =
-    fs.writeFile(path, pngBytes.get.toVector)
-
   def pngBytes = image.map(x => x.bytes(PngWriter.MaxCompression))
 }

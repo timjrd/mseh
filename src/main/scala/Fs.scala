@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
 
-trait Fs {
+trait Fs extends Serializable {
   def readDirectory(path: String): Seq[String]
   def readFile     (path: String): Vector[Byte]
 }

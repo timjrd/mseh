@@ -11,11 +11,11 @@ libraryDependencies := Seq(
   "org.apache.spark"      %% "spark-mllib"         % "2.2.0",
 
   // HBase
-  "org.apache.hbase"      %  "hbase"               % "2.1.2",
-  "org.apache.hbase"      %  "hbase-common"        % "2.1.2",
-  "org.apache.hbase"      %  "hbase-client"        % "2.1.2",
-  "org.apache.hbase"      %  "hbase-server"        % "2.1.2",
-  "org.apache.hbase"      %  "hbase-mapreduce"     % "2.1.2",
+  "org.apache.hbase"      %  "hbase"               % "2.0.0",
+  "org.apache.hbase"      %  "hbase-common"        % "2.0.0",
+  "org.apache.hbase"      %  "hbase-client"        % "2.0.0",
+  "org.apache.hbase"      %  "hbase-server"        % "2.0.0",
+  "org.apache.hbase"      %  "hbase-mapreduce"     % "2.0.0",
 
   // Scrimage (PNG encoding)
   "com.sksamuel.scrimage" %% "scrimage-core"       % "2.1.8",

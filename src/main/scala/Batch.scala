@@ -15,8 +15,8 @@ object Batch {
     val cfg = if (local) c.setMaster("local[*]") else c
     val sc  = new SparkContext(cfg)
 
-    val hcfg   = HBaseConfiguration.create()
-    val hadm   = ConnectionFactory.createConnection(hcfg).getAdmin()
+    val hdb    = ConnectionFactory.createConnection
+    val hadm   = hdb.getAdmin
     val prefix = "mseh_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss"))
 
     implicit val fs = if (local) new LocalFs else new HadoopFs
@@ -56,7 +56,7 @@ object Batch {
           .flatMap(_.split)
           .map(ImageTile(_))
           .foreachPartition{ tiles =>
-            val db = ConnectionFactory.createConnection(hcfg)
+            val db = ConnectionFactory.createConnection
             tiles.foreach{ tile =>
               val i = ByteBuffer.allocate(Integer.BYTES * 2)
               i.putInt(tile.position.x)
@@ -72,6 +72,10 @@ object Batch {
       }
 
     reduce(init, TileRef.zoom)
+
+    hdb.close
+    sc.stop
+
     println("\nOUTPUT WRITTEN INTO TABLES PREFIXED BY " + prefix + "\n")
   }
 }

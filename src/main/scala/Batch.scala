@@ -8,7 +8,6 @@ import org.apache.spark.mllib.rdd.RDDFunctions._
 
 import org.apache.hadoop.hbase._
 import org.apache.hadoop.hbase.client._
-import org.apache.hadoop.hbase.spark.HBaseContext
 
 object Batch {
   def batch(local: Boolean, dir: String) {
@@ -18,7 +17,6 @@ object Batch {
 
     val hcfg   = HBaseConfiguration.create()
     val hadm   = ConnectionFactory.createConnection(hcfg).getAdmin()
-    val hc     = new HBaseContext(sc, hcfg)
     val prefix = "mseh_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd.HH.mm.ss"))
 
     implicit val fs = if (local) new LocalFs else new HadoopFs
@@ -42,12 +40,6 @@ object Batch {
 
     def reduce(base: RDD[Tile], zoom: Int): Unit =
       if (zoom >= 0) {
-        val images = base
-          .flatMap(_.split)
-          .flatMap(_.split)
-          .map(ImageTile(_))
-          .filter(_.image != None)
-
         val tableName = TableName.valueOf(
           prefix + String.format("_%02d", new Integer(zoom+2)) )
 
@@ -59,13 +51,22 @@ object Batch {
 
         hadm.createTable(table)
 
-        hc.bulkPut(images, tableName,
-          { tile: ImageTile =>
-            val i = ByteBuffer.allocate(Integer.BYTES * 2)
-            i.putInt(tile.position.x)
-            i.putInt(tile.position.y)
-            new Put(i.array()).addColumn(family, qualifier, tile.pngBytes.get)
-          })
+        base
+          .flatMap(_.split)
+          .flatMap(_.split)
+          .map(ImageTile(_))
+          .foreachPartition{ tiles =>
+            val db = ConnectionFactory.createConnection(hcfg)
+            tiles.foreach{ tile =>
+              val i = ByteBuffer.allocate(Integer.BYTES * 2)
+              i.putInt(tile.position.x)
+              i.putInt(tile.position.y)
+              db.getTable(tableName)
+                .put( new Put(i.array())
+                  .addColumn(family, qualifier, tile.pngBytes.get) )
+            }
+            db.close
+          }
 
         reduce(base.sliding(4,4).map(Tile(_)), zoom-1)
       }

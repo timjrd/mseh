@@ -1,2 +1,2 @@
-/static/leaflet/**/* linguist-vendored
-/hbase/**/*          linguist-vendored
+/src/main/resources/leaflet/**/* linguist-vendored
+/hbase/**/* linguist-vendored

@@ -1,32 +1,24 @@
 # Multi-scale earth heightmap
+https://github.com/timjrd/mseh
 
-## Cluster setup
-*TODO*
+Timothée Jourde, Jeffrey Seutin, Okan Soyturk
 
-## Local setup
-Install the [SBT](https://www.scala-sbt.org/download.html) build tool.
+Please install the [SBT](https://www.scala-sbt.org/download.html) build tool.
 
-`data/dem3` contains 100 tiles covering the whole France (345Mo), taken from the complete
-dataset. This partial dataset will be used to generate an incomplete
-heightmap on a single machine for testing purposes.
-
-To run the heightmap precomputation:
+## Tiles generation
+### Local setup
+Launch HBase locally, then:
 ```
-sbt "runMain Batch"
+sbt "run batch --local <data directory>"
 ```
 
-To launch the web server:
+### Cluster setup
 ```
-sbt "runMain Server <table_prefix_without_zoom>"
+sbt assembly
+spark-submit [...] target/scala-2.10/mseh-assembly-0.1.0-SNAPSHOT.jar batch <hdfs data directory>
 ```
-then go to http://localhost:8080 .
 
-`batch` and `server` should automatically start (and hopefully stop)
-HBase, but you can manage it manually with:
+## Tile server
 ```
-sbt startHBase
-```
-and
-```
-sbt stopHBase
+sbt "run serve <port> <prefix>"
 ```

@@ -7,25 +7,22 @@ object Tile {
   def apply(ref: TileRef)(implicit fs: Fs): Tile = ref match {
     case TileRef(None      , pos) => Tile(None, rawSize-1, pos)
     case TileRef(Some(file), pos) =>
-      val rawData = fs
+      val data = fs
         .readFile(file)
         .grouped(2)
+        .zipWithIndex
+        .flatMap{ case (Vector(hi,lo), i) =>
+          if (i / rawSize == 0 || i % rawSize == 0)
+            None
+          else
+            Some(( ((hi & 0xFF) << 8) | (lo & 0xFF) ).toShort)
+        }
         .toVector
 
-      if (rawData.length != rawSize*rawSize)
+      if (data.length == (rawSize-1)*(rawSize-1))
+        Tile(Some(data), rawSize-1, pos)
+      else
         Tile(None, rawSize-1, pos)
-
-      else {
-        val data = rawData
-          .zipWithIndex
-          .flatMap{ case (Vector(hi,lo), i) =>
-            if (i / rawSize == 0 || i % rawSize == 0)
-              None
-            else
-              Some(( ((hi & 0xFF) << 8) | (lo & 0xFF) ).toShort)
-          }
-          Tile(Some(data), rawSize-1, pos)
-      }
   }
 
   def apply(upscaled: Array[Tile]): Tile = {

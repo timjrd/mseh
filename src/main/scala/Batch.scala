@@ -40,37 +40,35 @@ object Batch {
       // Loading tiles data from files.
       .map(Tile(_))
 
-    def reduce(base: RDD[Tile], zoom: Int): Unit =
-      if (zoom >= 0) {
-        val images = base
-          .flatMap(_.split)
-          .flatMap(_.split)
-          .map(ImageTile(_))
-          .filter(_.image != None)
+    (TileRef.zoom to 0 by -1).foldLeft(init){ case (base,zoom) =>
+      val images = base
+        .flatMap(_.split)
+        .flatMap(_.split)
+        .map(ImageTile(_))
+        .filter(_.image != None)
 
-        val tableName = TableName.valueOf(
-          prefix + String.format("_%02d", new Integer(zoom+2)) )
+      val tableName = TableName.valueOf(
+        prefix + String.format("_%02d", new Integer(zoom+2)) )
 
-        val family    = Array[Byte]('0')
-        val qualifier = Array[Byte]('0')
+      val family    = Array[Byte]('0')
+      val qualifier = Array[Byte]('0')
 
-        val table = new HTableDescriptor(tableName)
-        table.addFamily(new HColumnDescriptor(family))
+      val table = new HTableDescriptor(tableName)
+      table.addFamily(new HColumnDescriptor(family))
 
-        hadm.createTable(table)
+      hadm.createTable(table)
 
-        hc.bulkPut(images, tableName,
-          { tile: ImageTile =>
-            val i = ByteBuffer.allocate(Integer.BYTES * 2)
-            i.putInt(tile.position.x)
-            i.putInt(tile.position.y)
-            new Put(i.array()).addColumn(family, qualifier, tile.pngBytes.get)
-          })
+      hc.bulkPut(images, tableName,
+        { tile: ImageTile =>
+          val i = ByteBuffer.allocate(Integer.BYTES * 2)
+          i.putInt(tile.position.x)
+          i.putInt(tile.position.y)
+          new Put(i.array()).addColumn(family, qualifier, tile.pngBytes.get)
+        })
 
-        reduce(base.sliding(4,4).map(Tile(_)), zoom-1)
-      }
+      base.sliding(4,4).map(Tile(_))
+    }
 
-    reduce(init, TileRef.zoom)
     println("\nOUTPUT WRITTEN INTO TABLES PREFIXED BY " + prefix + "\n")
   }
 }
